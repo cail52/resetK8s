@@ -1,0 +1,17 @@
+---
+ - name: capture join command
+   hosts: workers
+
+   tasks:
+   - name: AAA capture join command
+     shell:
+       kubeadm token create --print-join-command
+     register: kube_join_command
+   - name: print the command
+     debug:
+          msg: "got {{ kube_join_command.stdout_lines }}"
+
+   tasks:
+   - name: execute join command
+     shell: "{{ kube_join_command.stdout_lines }}"
+     

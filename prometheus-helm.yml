@@ -1,0 +1,8 @@
+ helm:
+    name: test
+    chart_ref: stable/prometheus
+    release_namespace: monitoring
+    create_namespace: true
+
+# From repository
+

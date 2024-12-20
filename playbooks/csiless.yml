@@ -1,0 +1,58 @@
+---
+  - name: reset kubernetes cluster
+    hosts: all
+    tasks:
+      - name: execute kubeadm reset
+        shell: kubeadm reset -f
+
+      - name: delete cni cnf
+        file:
+          name: /etc/cni/netd/*
+          state: absent          
+
+
+  - name: master play 
+    hosts: master
+    tasks:
+     - name: init kubernetes
+       shell: 
+           kubeadm init --pod-network-cidr='10.244.0.0/16'
+
+#  - name: capture join command
+#    tasks:
+#     - name: AAA capture join command
+#       shell:
+#         kubeadm token create --print-join-command
+#       register: kube_join_command
+
+#     - name: print the command
+#       debug:
+#            msg: "got {{ kube_join_command.stdout_lines }}"
+
+        
+         
+     - name: copy admin yml to kube
+       copy:
+          src: /etc/kubernetes/admin.conf
+          dest: /root/.kube/conf
+          remote_src: yes
+
+     - name: execute canal plugin
+       shell:
+            kubectl apply -f /root/canal.yaml
+   
+#     - name: deploy csi-hostpath driver
+#       shell:
+#          /root/k8reset/csi-restore/restorecsi-script.sh
+
+#     - name: apply csi-hostpath storageclass
+#       shell:
+#           kubectl apply -f /root/k8reset/csi-hostpath.yml
+#     
+#---
+#   
+#  - name: worker play
+#    hosts: nodes
+#    tasks:
+#    - name: join worker nodes
+#      shell: "{{ kube_join_command}}"
